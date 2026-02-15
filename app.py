@@ -7,6 +7,11 @@ import uuid
 
 app = Flask(__name__)
 
+@app.before_request
+def before_request():
+    if request.headers.get('X-Forwarded-Proto') == 'https':
+        request.environ['wsgi.url_scheme'] = 'https'
+
 
 def date_adapter(object_date: datetime) -> str:
     'receives an object_date in the date adapter for adaptation to the new pattern of sqlite3'
