@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{% if note %}Bearbeiten{% else %}Neue Notiz{% endif %} - Markdown Editor{% endblock %}
+
+{% block styles %}
+.editor-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+.form-group textarea {
+    font-family: 'Courier New', monospace;
+    min-height: 400px;
+    resize: vertical;
+}
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+.markdown-help {
+    background: #ecf0f1;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.markdown-help h3 {
+    margin-bottom: 0.5rem;
+}
+.markdown-help code {
+    background: #fff;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    <h2>{% if note %}Notiz bearbeiten{% else %}Neue Notiz erstellen{% endif %}</h2>
+    
+    <div class="markdown-help">
+        <h3>Markdown Syntax:</h3>
+        <code># Überschrift</code> | 
+        <code>**fett**</code> | 
+        <code>*kursiv*</code> | 
+        <code>[Link](url)</code> | 
+        <code>- Liste</code> | 
+        <code>```code```</code>
+    </div>
+    
+    <form method="POST">
+        <div class="form-group">
+            <input type="hidden" id="id" name="id" value="{{id if id else ''}}"/>
+            <label for="title">Titel:</label>
+            <input type="text" id="title" name="title" 
+                   value="{% if note %}{{ note['title'] }}{% endif %}" >
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Markdown Inhalt:</label>
+            <textarea id="content" name="content" >{% if note %}{{ note['content'] }}{% endif %}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">Speichern</button>
+            <a href="{{ url_for('index') }}" class="btn btn-danger">Abbrechen</a>
+            <p id="save-status"></p>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Elemente auswählen
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const hiddenId = document.getElementById('id')
+    const statusDisplay = document.getElementById('save-status');
+    
+    let timeoutId; // Timer für Verzögerung
+
+    // Funktion zum Senden der Daten
+    async function autoSave() {
+        statusDisplay.textContent = 'Speichere...';
+        
+        const data = {
+            title: titleInput.value,
+            content: contentInput.value,
+            id: hiddenId.value
+        };
+
+        try {
+            const response = await fetch('/autosave/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                statusDisplay.textContent = 'Automatisch gespeichert um ' + result.time;
+                statusDisplay.style.color = '#27ae60'; // Grün
+            } else {
+                statusDisplay.textContent = 'Fehler beim Speichern';
+                statusDisplay.style.color = '#c0392b'; // Rot
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            statusDisplay.textContent = 'Verbindungsfehler';
+        }
+    }
+
+    // Debounce-Funktion: Wartet 1 Sekunde nach dem letzten Tippen
+    function handleInput() {
+        statusDisplay.textContent = 'Änderungen erkannt...';
+        statusDisplay.style.color = '#f39c12'; // Orange
+        
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(autoSave, 1000); // 1000ms = 1 Sekunde Wartezeit
+    }
+
+    // Event Listener hinzufügen
+    titleInput.addEventListener('input', handleInput);
+    contentInput.addEventListener('input', handleInput);
+</script>
+
+{% endblock %}

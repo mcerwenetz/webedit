@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Suche - Markdown Editor{% endblock %}
+
+{% block styles %}
+.search-box {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+.search-box input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+.results-info {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="search-box">
+    <form method="GET">
+        <input type="text" name="q" value="{{ query }}" 
+               placeholder="Suche in Titeln und Inhalten (Volltext)..." autofocus>
+    </form>
+</div>
+
+{% if query %}
+<div class="results-info">
+    {% if notes %}
+        {{ notes|length }} Treffer für "{{ query }}"
+    {% else %}
+        Keine Treffer für "{{ query }}"
+    {% endif %}
+    <a href="{{ url_for('index') }}">Zurück zur Übersicht</a>
+</div>
+
+{% if notes %}
+<div class="notes-grid">
+    {% for note in notes %}
+    <div class="note-card">
+        <h2>{{ note['title'] }}</h2>
+        <div class="meta">
+            Erstellt: {{ note['created']}} | Aktualisiert: {{ note['updated'] }}
+        </div>
+        <div class="note-actions">
+            <a href="{{ url_for('view', id=note['id']) }}" class="btn">Ansehen</a>
+            <a href="{{ url_for('edit', id=note['id']) }}" class="btn">Bearbeiten</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% else %}
+<p style="text-align: center; color: #7f8c8d;">Gib einen Suchbegriff ein...</p>
+{% endif %}
+{% endblock %}

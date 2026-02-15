@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Notizen - Markdown Editor{% endblock %}
+
+{% block styles %}
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.note-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.note-card h2 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+.note-card .meta {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+}
+.note-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.note-actions a {
+    font-size: 0.9rem;
+}
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+}
+{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem;">Notizen</h2>
+
+{% if notes %}
+<div class="notes-grid">
+    {% for note in notes %}
+    <div class="note-card">
+        <h2>{{ note['title'] }}</h2>
+        <div class="meta">
+            Erstellt: {{ note['created'] }}<br>
+            Aktualisiert: {{ note['updated'] }}
+        </div>
+        <div class="note-actions">
+            <a href="{{ url_for('view', id=note['id']) }}" class="btn">Ansehen</a>
+            <a href="{{ url_for('edit', id=note['id']) }}" class="btn">Bearbeiten</a>
+            <a href="{{ url_for('delete', id=note['id']) }}" class="btn btn-danger" 
+               onclick="return confirm('Wirklich löschen?')">Löschen</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>Noch keine Notizen vorhanden</h3>
+    <a href="{{ url_for('create') }}" class="btn">Erste Notiz erstellen</a>
+</div>
+{% endif %}
+{% endblock %}
