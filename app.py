@@ -1,16 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
-from waitress import serve
 import sqlite3
 import markdown
 from datetime import datetime
 import uuid
 
 app = Flask(__name__)
-
-@app.before_request
-def before_request():
-    if request.headers.get('X-Forwarded-Proto') == 'https':
-        request.environ['wsgi.url_scheme'] = 'https'
 
 
 def date_adapter(object_date: datetime) -> str:
@@ -174,4 +168,3 @@ def autosave():
 
 if __name__ == '__main__':
     init_db()
-    serve(app, host='localhost', port=8080)
