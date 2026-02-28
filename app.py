@@ -111,7 +111,7 @@ def view(id):
     note = conn.execute('SELECT * FROM notes WHERE id = ?', (id,)).fetchone()
     conn.close()
     
-    if note:
+    if note and note['content']:
         html_content = markdown.markdown(note['content'], extensions=['fenced_code', 'tables', 'nl2br'])
         return render_template('view.html', note=note, html_content=html_content)
     return redirect(url_for('index'))
