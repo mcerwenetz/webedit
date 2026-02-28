@@ -61,32 +61,32 @@ def create():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        id = request.form['id']
+        md_id = request.form['id']
         
         result = conn.execute('SELECT id from notes where id = ?', (id,)).fetchone()
         
-        if not result:
+        if result:
         
-            conn.execute('INSERT INTO notes (id, title, content) VALUES (?, ?, ?)',
-                        (id, title, content))
+            conn.execute('UPDATE notes SET title = ?, content = ? WHERE id = ?',
++                        (title, content, md_id,))
             conn.commit()
             conn.close()
             
         
         return redirect(url_for('index'))
     elif request.method == 'GET':
-        id = str(uuid.uuid4())
+        imd_d = str(uuid.uuid4())
         conn.execute('INSERT INTO notes (id) VALUES (?)',
-                     (id,))
+                     (md_id,))
         conn.commit()
         conn.close()
         
-        return render_template('editor.html', note=None, id=id)
+        return render_template('editor.html', note=None, id=md_id)
     
 
 # Notiz bearbeiten
 @app.route('/edit/<id>', methods=['GET', 'POST'])
-def edit(id):
+def edit(md_id):
     conn = get_db_connection()
     
     if request.method == 'POST':
@@ -95,12 +95,12 @@ def edit(id):
         
         now = datetime.now()
         conn.execute('UPDATE notes SET title = ?, content = ?, updated = ? WHERE id = ?',
-                     (title, content, now, id))
+                     (title, content, now, md_id))
         conn.commit()
         conn.close()
         return redirect(url_for('index'))
     
-    note = conn.execute('SELECT * FROM notes WHERE id = ?', (id,)).fetchone()
+    note = conn.execute('SELECT * FROM notes WHERE id = ?', (md_id,)).fetchone()
     conn.close()
     return render_template('editor.html', note=note)
 
