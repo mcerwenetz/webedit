@@ -6,4 +6,4 @@ Jinja2==3.1.6
 Markdown==3.10.2
 MarkupSafe==3.0.3
 Werkzeug==3.1.5
-Gunicorn
+waitress==3.0.2

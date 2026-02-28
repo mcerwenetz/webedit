@@ -52,9 +52,9 @@
             Aktualisiert: {{ note['updated'] }}
         </div>
         <div class="note-actions">
-            <a href="{{ url_for('view', id=note['id']) }}" class="btn">Ansehen</a>
-            <a href="{{ url_for('edit', id=note['id']) }}" class="btn">Bearbeiten</a>
-            <a href="{{ url_for('delete', id=note['id']) }}" class="btn btn-danger" 
+            <a href="{{ url_for('view', md_id=note['id']) }}" class="btn">Ansehen</a>
+            <a href="{{ url_for('edit', md_id=note['id']) }}" class="btn">Bearbeiten</a>
+            <a href="{{ url_for('delete', md_id=note['id']) }}" class="btn btn-danger" 
                onclick="return confirm('Wirklich löschen?')">Löschen</a>
         </div>
     </div>

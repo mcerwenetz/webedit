@@ -61,7 +61,7 @@ def create():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        md_id = request.form['id']
+        md_id = request.form['md_id']
         
         result = conn.execute('SELECT id from notes where id = ?', (md_id,)).fetchone()
         
@@ -81,11 +81,11 @@ def create():
         conn.commit()
         conn.close()
         
-        return render_template('editor.html', note=None, id=md_id)
+        return render_template('editor.html', note=None, md_id=md_id)
     
 
 # Notiz bearbeiten
-@app.route('/edit/<id>', methods=['GET', 'POST'])
+@app.route('/edit/<md_id>', methods=['GET', 'POST'])
 def edit(md_id):
     conn = get_db_connection()
     
@@ -105,10 +105,10 @@ def edit(md_id):
     return render_template('editor.html', note=note)
 
 # Notiz als HTML anzeigen
-@app.route('/view/<id>')
-def view(id):
+@app.route('/view/<md_id>')
+def view(md_id):
     conn = get_db_connection()
-    note = conn.execute('SELECT * FROM notes WHERE id = ?', (id,)).fetchone()
+    note = conn.execute('SELECT * FROM notes WHERE id = ?', (md_id,)).fetchone()
     conn.close()
     
     if note and note['content']:
@@ -117,10 +117,10 @@ def view(id):
     return redirect(url_for('index'))
 
 # Notiz löschen
-@app.route('/delete/<id>')
-def delete(id):
+@app.route('/delete/<md_id>')
+def delete(md_id):
     conn = get_db_connection()
-    conn.execute('DELETE FROM notes WHERE id = ?', (id,))
+    conn.execute('DELETE FROM notes WHERE id = ?', (md_id,))
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
@@ -137,6 +137,7 @@ def search():
         conn.close()
         
         notes_content =  [(n['id'], f"{n['title']} {n['content']}") for n in notes]
+
         scored_notes = [n[0] for n in notes_content if query in n[1]]
         
     
@@ -157,12 +158,12 @@ def autosave():
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
-    id = data.get('id')
+    md_id = data.get('id')
     
     now = datetime.now()
     conn = get_db_connection()
     conn.execute('UPDATE notes SET title = ?, content = ?, updated = ? WHERE id = ?',
-                 (title, content, now , id))
+                 (title, content, now , md_id))
     conn.commit()
     conn.close()
     
