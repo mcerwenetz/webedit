@@ -68,7 +68,7 @@ def create():
         if result:
         
             conn.execute('UPDATE notes SET title = ?, content = ? WHERE id = ?',
-+                        (title, content, md_id,))
+                        (title, content, md_id,))
             conn.commit()
             conn.close()
             
