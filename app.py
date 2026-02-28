@@ -63,7 +63,7 @@ def create():
         content = request.form['content']
         md_id = request.form['id']
         
-        result = conn.execute('SELECT id from notes where id = ?', (id,)).fetchone()
+        result = conn.execute('SELECT id from notes where id = ?', (md_id,)).fetchone()
         
         if result:
         
