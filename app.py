@@ -3,9 +3,14 @@ import sqlite3
 import markdown
 from datetime import datetime
 import uuid
+from werkzeug.middleware.proxy_fix import ProxyFix
+from waitress import serve
 
 app = Flask(__name__)
 
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 
 def date_adapter(object_date: datetime) -> str:
     'receives an object_date in the date adapter for adaptation to the new pattern of sqlite3'
@@ -168,3 +173,4 @@ def autosave():
 
 if __name__ == '__main__':
     init_db()
+    serve(app, host='127.0.0.1', port=8080, url_prefix='/notes', url_scheme='https')
