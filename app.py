@@ -75,7 +75,7 @@ def create():
         
         return redirect(url_for('index'))
     elif request.method == 'GET':
-        imd_d = str(uuid.uuid4())
+        md_id = str(uuid.uuid4())
         conn.execute('INSERT INTO notes (id) VALUES (?)',
                      (md_id,))
         conn.commit()
