@@ -107,8 +107,12 @@
             id: hiddenId.value
         };
 
+        const currentUrl = window.location.href.split('/')[3];
+        const suffix = 'autosave';
+        
         try {
-            const response = await fetch('/autosave/', {
+            
+            const response = await fetch( '/' + currentUrl + '/' + suffix + '/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
