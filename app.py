@@ -76,12 +76,13 @@ def create():
         return redirect(url_for('index'))
     elif request.method == 'GET':
         md_id = str(uuid.uuid4())
+        note = {'id' : md_id, 'title': '', 'content': ''}
         conn.execute('INSERT INTO notes (id) VALUES (?)',
                      (md_id,))
         conn.commit()
         conn.close()
         
-        return render_template('editor.html', note=None, md_id=md_id)
+        return render_template('editor.html', note=note)
     
 
 # Notiz bearbeiten
