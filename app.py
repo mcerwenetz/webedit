@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import timedelta
+import conf.SECRET
+import conf.PASSWORD
 import sqlite3
 import markdown
 from datetime import datetime
 import uuid
 from werkzeug.middleware.proxy_fix import ProxyFix
 from waitress import serve
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -12,9 +16,28 @@ app.wsgi_app = ProxyFix(
     app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
 
+app.secret_key = conf.SECRET
+
+app.permanent_session_lifetime = timedelta(days=7)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE=True
+)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+    
+
+
 def date_adapter(object_date: datetime) -> str:
     'receives an object_date in the date adapter for adaptation to the new pattern of sqlite3'
-    return str(object_date)
+    return object_date.isoformat()
 
 
 def date_converter(val) -> str:
@@ -46,8 +69,22 @@ def init_db():
     conn.commit()
     conn.close()
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        password = request.form['password']
+        if password == conf.PASSWORD:
+            session.permanent = True
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Incorrect password')
+    elif request.method == 'GET':
+        return render_template('login.html')
+
 # Homepage - Liste aller Notizen
 @app.route('/')
+@login_required
 def index():
     conn = get_db_connection()
     notes = conn.execute('SELECT * FROM notes ORDER BY updated DESC').fetchall()
@@ -56,6 +93,7 @@ def index():
 
 # Neue Notiz erstellen
 @app.route('/create', methods=['GET', 'POST'])
+@login_required
 def create():
     conn = get_db_connection()
     if request.method == 'POST':
@@ -87,6 +125,7 @@ def create():
 
 # Notiz bearbeiten
 @app.route('/edit/<md_id>', methods=['GET', 'POST'])
+@login_required
 def edit(md_id):
     conn = get_db_connection()
     
@@ -107,6 +146,7 @@ def edit(md_id):
 
 # Notiz als HTML anzeigen
 @app.route('/view/<md_id>')
+@login_required
 def view(md_id):
     conn = get_db_connection()
     note = conn.execute('SELECT * FROM notes WHERE id = ?', (md_id,)).fetchone()
@@ -119,6 +159,7 @@ def view(md_id):
 
 # Notiz löschen
 @app.route('/delete/<md_id>')
+@login_required
 def delete(md_id):
     conn = get_db_connection()
     conn.execute('DELETE FROM notes WHERE id = ?', (md_id,))
@@ -127,6 +168,7 @@ def delete(md_id):
     return redirect(url_for('index'))
 
 @app.route('/search')
+@login_required
 def search():
     query = request.args.get('q', '').strip()
     conn = get_db_connection()
@@ -142,16 +184,16 @@ def search():
         if len(notes_content) == 0:
             return render_template('search.html', notes=[], query=query)
 
-        found_notes = [n[0] for n in notes_content if query in n[1]]
+        found_ids = [nid for nid, text in notes_content if query.lower() in text.lower()]
         
     
-        if len(found_notes) == 0:
+        if len(found_ids) == 0:
             return render_template('search.html', notes=[], query=query)
 
 
         conn = get_db_connection()
         search_notes = conn.execute(
-            'SELECT * FROM notes WHERE id IN (?) ORDER BY updated DESC', (found_notes)).fetchall()
+            'SELECT * FROM notes WHERE id IN (?) ORDER BY updated DESC', (found_ids)).fetchall()
         conn.close()
         
     
@@ -162,11 +204,15 @@ def search():
 
 # API für Auto-Save
 @app.route('/autosave/', methods=['POST'])
+@login_required
 def autosave():
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
     md_id = data.get('id')
+
+    if not md_id:
+        return {'status': 'error', 'message': 'Missing note ID'}, 400
     
     now = datetime.now()
     conn = get_db_connection()

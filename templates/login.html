@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{% if note %}Bearbeiten{% else %}Neue Notiz{% endif %} - Markdown Editor{% endblock %}
+
+{% block styles %}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+.form-group textarea {
+    font-family: 'Courier New', monospace;
+    min-height: 400px;
+    resize: vertical;
+}
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+{% endblock %}
+
+{% block content %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <input type="text" id="password" name="password" placeholder="Passwort" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">Login</button>
+        </div>
+    </form>
+
+
+{% endblock %}
