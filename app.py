@@ -191,8 +191,9 @@ def search():
 
 
         conn = get_db_connection()
+        placeholders = ",".join("?" for _ in found_ids)
         search_notes = conn.execute(
-            'SELECT * FROM notes WHERE id IN (?) ORDER BY updated DESC', (found_ids)).fetchall()
+            f"SELECT * FROM notes WHERE id IN ({placeholders}) ORDER BY updated DESC", (found_ids)).fetchall()
         conn.close()
         
     
