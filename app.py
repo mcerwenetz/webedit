@@ -139,12 +139,19 @@ def search():
         
         notes_content =  [(n['id'], f"{n['title']} {n['content']}") for n in notes]
 
-        scored_notes = [n[0] for n in notes_content if query in n[1]]
+        if len(notes_content) == 0:
+            return render_template('search.html', notes=[], query=query)
+
+        found_notes = [n[0] for n in notes_content if query in n[1]]
         
     
+        if len(found_notes) == 0:
+            return render_template('search.html', notes=[], query=query)
+
+
         conn = get_db_connection()
         search_notes = conn.execute(
-            'SELECT * FROM notes WHERE id IN (?) ORDER BY updated DESC', (scored_notes)).fetchall()
+            'SELECT * FROM notes WHERE id IN (?) ORDER BY updated DESC', (found_notes)).fetchall()
         conn.close()
         
     
