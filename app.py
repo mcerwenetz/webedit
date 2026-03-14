@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import timedelta
-import conf.SECRET
-import conf.PASSWORD
+import conf
 import sqlite3
 import markdown
 from datetime import datetime
