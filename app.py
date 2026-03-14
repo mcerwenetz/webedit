@@ -36,7 +36,7 @@ def login_required(f):
 
 def date_adapter(object_date: datetime) -> str:
     'receives an object_date in the date adapter for adaptation to the new pattern of sqlite3'
-    return object_date.isoformat()
+    return object_date
 
 
 def date_converter(val) -> str:
