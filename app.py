@@ -177,10 +177,10 @@ def search():
         found_ids = f'%{query}%'
         conn = get_db_connection()
         search_notes = conn.execute(
-            f"SELECT * FROM notes 
+            f"""SELECT * FROM notes 
             WHERE LOWER(title) LIKE LOWER((?)) 
             OR LOWER(content) LIKE LOWER((?)) 
-            ORDER BY updated DESC", (found_ids, found_ids)).fetchall()
+            ORDER BY updated DESC""", (found_ids, found_ids)).fetchall()
         conn.close()
         
     
