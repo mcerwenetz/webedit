@@ -171,29 +171,13 @@ def delete(md_id):
 def search():
     query = request.args.get('q', '').strip()
     conn = get_db_connection()
-    search_notes = ""
+    search_notes = []
     
     if query:
-        # Alle Notizen laden (für kleine DBs effizient)
-        notes = conn.execute('SELECT * FROM notes ORDER BY updated DESC').fetchall()
-        conn.close()
-        
-        notes_content =  [(n['id'], f"{n['title']} {n['content']}") for n in notes]
-
-        if len(notes_content) == 0:
-            return render_template('search.html', notes=[], query=query)
-
-        found_ids = [n[0] for n in notes_content if query.lower() in n[1].lower()]
-        
-    
-        if len(found_ids) == 0:
-            return render_template('search.html', notes=[], query=query)
-
-
+        found_ids = f'%{query}%'
         conn = get_db_connection()
-        placeholders = ",".join("?" for _ in found_ids)
         search_notes = conn.execute(
-            f"SELECT * FROM notes WHERE id IN ({placeholders}) ORDER BY updated DESC", (found_ids)).fetchall()
+            f"SELECT * FROM notes WHERE title LIKE (?) OR content LIKE (?) ORDER BY updated DESC", (found_ids, found_ids)).fetchall()
         conn.close()
         
     
