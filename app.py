@@ -183,7 +183,7 @@ def search():
         if len(notes_content) == 0:
             return render_template('search.html', notes=[], query=query)
 
-        found_ids = [nid for nid, text in notes_content if query.lower() in text.lower()]
+        found_ids = [n[0] for n in notes_content if query.lower() in n[1].lower()]
         
     
         if len(found_ids) == 0:
