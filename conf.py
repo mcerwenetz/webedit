@@ -1,0 +1,2 @@
+SECRET = 'changeme'
+PASSWORD = 'changeme'
