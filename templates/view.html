@@ -71,6 +71,7 @@
 .view-actions {
     margin-top: 2rem;
     padding-top: 1rem;
+    margin-bottom: 1.5rem;
     border-top: 2px solid #ecf0f1;
     display: flex;
     gap: 1rem;
@@ -79,6 +80,10 @@
 
 {% block content %}
 <div class="view-container">
+        <div class="view-actions">
+        <a href="{{ url_for('edit', md_id=note['id']) }}" class="btn">Bearbeiten</a>
+        <a href="{{ url_for('index') }}" class="btn">Zurück zur Übersicht</a>
+    </div>
     <div class="view-header">
         <h2>{{ note['title'] }}</h2>
         <div class="view-meta">
@@ -90,9 +95,6 @@
         {{ html_content|safe }}
     </div>
     
-    <div class="view-actions">
-        <a href="{{ url_for('edit', md_id=note['id']) }}" class="btn">Bearbeiten</a>
-        <a href="{{ url_for('index') }}" class="btn">Zurück zur Übersicht</a>
-    </div>
+
 </div>
 {% endblock %}
