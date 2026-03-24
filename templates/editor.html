@@ -93,7 +93,7 @@
 
     // Funktion zum Senden der Daten
     async function autoSave() {
-        statusDisplay.textContent = 'Speichere...';
+        statusDisplay.textContent = 'saving';
         
         const data = {
             title: titleInput.value,
@@ -116,25 +116,25 @@
 
             if (response.ok) {
                 const result = await response.json();
-                statusDisplay.textContent = 'Automatisch gespeichert um ' + result.time;
+                statusDisplay.textContent = 'saved';
                 statusDisplay.style.color = '#27ae60'; // Grün
             } else {
-                statusDisplay.textContent = 'Fehler beim Speichern';
+                statusDisplay.textContent = 'error saving';
                 statusDisplay.style.color = '#c0392b'; // Rot
             }
         } catch (error) {
             console.error('Error:', error);
-            statusDisplay.textContent = 'Verbindungsfehler';
+            statusDisplay.textContent = 'connection error';
         }
     }
 
     // Debounce-Funktion: Wartet 1 Sekunde nach dem letzten Tippen
     function handleInput() {
-        statusDisplay.textContent = 'Änderungen erkannt...';
+        statusDisplay.textContent = 'changed';
         statusDisplay.style.color = '#f39c12'; // Orange
         
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(autoSave, 1000); // 1000ms = 1 Sekunde Wartezeit
+        timeoutId = setTimeout(autoSave, 700);
     }
 
     // Event Listener hinzufügen
