@@ -208,4 +208,4 @@ def autosave():
 
 if __name__ == '__main__':
     init_db()
-    serve(app, host='127.0.0.1', port=8080, url_prefix='/notes')
+    serve(app, host='127.0.0.1', port=8080, url_prefix='/notes', url_scheme='https' )
