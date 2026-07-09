@@ -46,5 +46,11 @@
         </div>
     </form>
 
+    {% if error %}
+    <div style="background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;">
+    {{ error }}
+    </div>
+    {% endif %}
+    
 
 {% endblock %}
