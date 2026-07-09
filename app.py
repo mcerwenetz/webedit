@@ -165,18 +165,16 @@ def delete(md_id):
 @login_required
 def search():
     query = request.args.get('q', '').strip()
-    conn = get_db_connection()
     search_notes = []
     
     if query:
         found_ids = f'%{query}%'
-        conn = get_db_connection()
-        search_notes = conn.execute(
-            f"""SELECT * FROM notes 
-            WHERE LOWER(title) LIKE LOWER((?)) 
-            OR LOWER(content) LIKE LOWER((?)) 
-            ORDER BY updated DESC""", (found_ids, found_ids)).fetchall()
-        conn.close()
+        with get_db_connection() as conn:
+            search_notes = conn.execute(
+                f"""SELECT * FROM notes 
+                WHERE LOWER(title) LIKE LOWER((?)) 
+                OR LOWER(content) LIKE LOWER((?)) 
+                ORDER BY updated DESC""", (found_ids, found_ids)).fetchall()
         
     
     return render_template('search.html', notes=search_notes, query=query)
