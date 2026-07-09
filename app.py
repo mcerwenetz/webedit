@@ -94,32 +94,27 @@ def index():
 @app.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
-    conn = get_db_connection()
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        md_id = request.form['id']
-        
-        result = conn.execute('SELECT id from notes where id = ?', (md_id,)).fetchone()
-        
-        if result:
-        
-            conn.execute('UPDATE notes SET title = ?, content = ? WHERE id = ?',
-                        (title, content, md_id,))
-            conn.commit()
-            conn.close()
+    with get_db_connection() as conn:
+        if request.method == 'POST':
+            title = request.form['title']
+            content = request.form['content']
+            md_id = request.form['id']
             
-        
-        return redirect(url_for('index'))
-    elif request.method == 'GET':
-        md_id = str(uuid.uuid4())
-        note = {'id' : md_id, 'title': '', 'content': ''}
-        conn.execute('INSERT INTO notes (id) VALUES (?)',
-                     (md_id,))
-        conn.commit()
-        conn.close()
-        
-        return render_template('editor.html', note=note)
+            result = conn.execute('SELECT id from notes where id = ?', (md_id,)).fetchone()
+            
+            if result:
+            
+                conn.execute('UPDATE notes SET title = ?, content = ? WHERE id = ?',
+                            (title, content, md_id,))
+                conn.commit()
+            return redirect(url_for('index'))
+        elif request.method == 'GET':
+            md_id = str(uuid.uuid4())
+            note = {'id' : md_id, 'title': '', 'content': ''}
+            conn.execute('INSERT INTO notes (id) VALUES (?)',
+                        (md_id,))
+            conn.commit()            
+            return render_template('editor.html', note=note)
     
 
 # Notiz bearbeiten
@@ -215,4 +210,4 @@ def autosave():
 
 if __name__ == '__main__':
     init_db()
-    serve(app, host='127.0.0.1', port=8080, url_prefix='/notes', url_scheme='https')
+    serve(app, host='127.0.0.1', port=8080, url_prefix='/notes')
