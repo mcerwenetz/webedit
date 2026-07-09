@@ -11,6 +11,10 @@ from functools import wraps
 
 app = Flask(__name__)
 
+@app.context_processor
+def inject_git_hash():
+    return {'git_hash': conf.GIT_HASH}
+
 app.wsgi_app = ProxyFix(
     app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
